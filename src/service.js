@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NODE_ENV === "development" ? "http://localhost:8000" : "http://app.adbrew.io"
+const BASE_URL = process.env.NODE_ENV === "development" ? "http://localhost:8000" : "http://35.222.122.87"
 
 export const signup = (payload) => {
     var requestOptions = {
