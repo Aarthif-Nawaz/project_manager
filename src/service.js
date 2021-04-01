@@ -39,6 +39,18 @@ export const addProject = (payload) => {
         })
 }
 
+export const addImage = (payload) => {
+    var requestOptions = {
+        method: 'PUT',
+        body: payload
+    };
+
+    return fetch(BASE_URL + "/project/", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            return data
+        })
+}
 
 export const getProjects = (payload) => {
     var requestOptions = {

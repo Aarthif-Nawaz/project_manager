@@ -7,6 +7,9 @@ import 'react-notifications-component/dist/theme.css'
 import { store } from 'react-notifications-component';
 import 'animate.css'
 import {useHistory} from 'react-router-dom'
+import Fab from '@material-ui/core/Fab'
+import DeleteIcon from '@material-ui/icons/Delete';
+
 function FormSignup() {
 
   const [name, setName] = useState('')
@@ -71,6 +74,25 @@ function FormSignup() {
     }
   }
 
+  const deleteItem = (item,type) => {
+    if(type=="work"){
+      const index = worktypes.indexOf(item);
+      worktypes.splice(index, 1);
+      setWorktypes([...worktypes])
+      
+    }
+    else if(type == "contractor"){
+      const index = contractors.indexOf(item);
+      contractors.splice(index, 1);
+      setContractors([...contractors])
+    }
+    else{
+      const index = users.indexOf(item);
+      users.splice(index, 1);
+      setUsers([...users])
+    }
+  }
+
   const AddWork = (currentworktypes, type) => {
     if (type === "work") {
       worktypes.push(currentworktypes)
@@ -91,12 +113,8 @@ function FormSignup() {
 
 
   return (
-    <div className='form-content-right'>
+    <div className='form-content-right' style={{overflowY:'scroll', overflowX:'scroll'}}>
       <form onSubmit={handleSubmit} className='form' noValidate>
-        <h1>
-          Get started with us today! Create your account by filling out the
-          information below.
-        </h1>
         <div className='form-inputs'>
           <label className='form-label'>Name</label>
           <input
@@ -129,17 +147,20 @@ function FormSignup() {
             value={currentworktypes}
             onChange={(e) => setCurrentworktypes(e.target.value)}
           />
-          {/* {worktypes.length > 0 ? worktypes.map(work => (
-            <p>{work}</p>
-          )) : ''} */}
+          
+          {worktypes.length > 0 ? worktypes.map(work => (
+            <Fab color={'primary'} size={'small'} variant={'extended'}>{work} <DeleteIcon onClick={() => deleteItem(work, "work")} /></Fab>
+          )) : ''}
+          <div style={{left: 520,
+            position: 'absolute',
+            bottom: 300}}>
           <Button style={{
             backgroundColor: "thistle",
             width: 70,
             height: 30,
-            marginLeft: 475,
-            position: 'absolute',
-            bottom: window.innerHeight - 455
+
           }} variant={'primary'} onClick={() => AddWork(currentworktypes, "work")}> Add </Button>
+          </div>
         </div>
         <div className='form-inputs'>
           <label className='form-label'>Contracters</label>
@@ -150,16 +171,16 @@ function FormSignup() {
             placeholder='Add Project Contractos'
             onChange={(e) => setCurrentContractors(e.target.value)}
           />
-          {/* {contractors.length > 0 ? contractors.map(con => (
-            <p>{con}</p>
-          )) : ''} */}
+          {contractors.length > 0 ? contractors.map(con => (
+            <Fab color={'primary'} size={'small'} variant={'extended'}>{con} <DeleteIcon onClick={() => deleteItem(con, "contractor")} /></Fab>
+          )) : ''}
           <Button style={{
             backgroundColor: "thistle",
             width: 70,
             height: 30,
-            marginLeft: 475,
+            left: 520,
             position: 'absolute',
-            bottom: window.innerHeight - 535
+            bottom: 220
           }} variant={'primary'} onClick={() => AddWork(currentContractors, "contract")}> Add </Button>
         </div>
         <div className='form-inputs'>
@@ -171,16 +192,16 @@ function FormSignup() {
             placeholder='Add Project Users'
             onChange={(e) => setCurrentUser(e.target.value)}
           />
-          {/* {users.length > 0 ? users.map(usr => (
-            <p>{usr}</p>
-          )) : ''} */}
+          {users.length > 0 ? users.map(usr => (
+            <Fab color={'primary'} size={'small'} variant={'extended'}>{usr} <DeleteIcon onClick={() => deleteItem(usr, "user")} /></Fab>
+          )) : ''}
           <Button style={{
             backgroundColor: "thistle",
             width: 70,
             height: 30,
-            marginLeft: 475,
+            left:520,
             position: 'absolute',
-            bottom: window.innerHeight - 620
+            bottom: 140
           }} variant={'primary'} onClick={() => AddWork(currentUser, "user")}> Add </Button>
         </div>
 

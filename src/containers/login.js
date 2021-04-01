@@ -59,7 +59,8 @@ export default function Login() {
     const classes = useStyles();
 
     const responseGoogle = (response) => {
-        console.log(response)
+        console.log(response.profileObj.email)
+        localStorage.setItem('email',response.profileObj.email)
         history.push("/home");
     }
 

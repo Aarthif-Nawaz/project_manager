@@ -43,7 +43,7 @@ function Projects(props) {
                     style={{ margin: 25, width: '80%' }}
                     type="inner"
                     title={proj.name}
-                    extra={<a href={`/edit/${proj._id}`}>Edit</a>}
+                    extra={<div><a href={`/edit/${proj._id}`}>Edit</a><a style={{color:'red', marginLeft:'10px'}} href={`/edit/${proj._id}`}>Delete</a></div>}
                 >
 
                     Description : {proj.description}

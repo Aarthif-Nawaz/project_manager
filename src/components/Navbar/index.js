@@ -14,6 +14,7 @@ import { useHistory } from "react-router-dom";
 const Navbar = () => {
 
   const history = useHistory();
+  
   const logout = () => {
     if (localStorage.getItem('email')) {
       localStorage.removeItem('email')
