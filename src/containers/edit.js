@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar'
 import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add';
 import { useHistory } from 'react-router-dom'
-import { addProject, getProjects, addImage } from '../service'
+import { addProject, getProjects, addImage, getImage } from '../service'
 import Projects from './projects';
 import { useParams } from 'react-router-dom'
 import 'antd/dist/antd.css';
@@ -11,6 +11,7 @@ import { Card } from 'antd';
 import PublishIcon from '@material-ui/icons/Publish';
 import ImageUploader from 'react-images-upload';
 import imageToBase64 from 'image-to-base64'
+import '../App.css'
 
 function Edit(props) {
 
@@ -25,24 +26,22 @@ function Edit(props) {
     const id = useParams('id')['id']
 
     const fetchData = async () => {
-        setImages([])
         const data = await getProjects({ id, action: "GET_BY_ID" })
         console.log(data['result'])
         setProjects([data['result']])
-        if ('images' in data['result']) {
-            for (let index = 0; index < data['result']['images'].length; index++) {
-                let imageUrl = data['result']['images'][index]
-                images.push(imageUrl)
-                setImages([...images])
-            }
-        }
-        else {
-            console.log(false)
-        }
+        const data_image = await getImage({id, action: "GET_IMAGE_BY_ID"})
+        setImages([data_image['result']])
     }
     useEffect(() => {
         fetchData()
     }, [])
+
+    const editImage = (CADid,img) => {
+        history.push({
+           pathname: `/filterCAD/${CADid}/${id}`,
+           state: {detail: img}
+        })
+    }
 
     const AddProjects = () => {
         history.push('/addProjects')
@@ -101,11 +100,13 @@ function Edit(props) {
                     </Card>
                 )
             })}
+            <div style={{content:"",clear:'both',display:'table'}}>
             {images.map((img, index) => (
-                <div key={index}>
-                    <img src={img} width="200" height="200" onClick={() => console.log(img)} />
+                <div key={index} style={{marginLeft:'40px', float:'left', width:'30%', paddign:'50px', marginTop:'20px'}}>
+                    <img className="anime" src={img['image']} width="400" height="300" onClick={() => editImage(img._id,img.image)} />
                 </div>
             ))}
+           </div>
             <Fab style={{ position: 'fixed', right: '2%' }} onClick={AddProjects} color="primary" aria-label="add"><AddIcon /></Fab>
         </div>
     );

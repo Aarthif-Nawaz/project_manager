@@ -65,3 +65,15 @@ export const getProjects = (payload) => {
         })
 }
 
+export const getImage = (payload) => {
+    var requestOptions = {
+        method: 'POST',
+        body: JSON.stringify(payload)
+    };
+
+    return fetch(BASE_URL + "/project/", requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            return data
+        })
+}
