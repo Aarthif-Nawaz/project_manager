@@ -18,6 +18,9 @@ import 'react-notifications-component/dist/theme.css'
 import { store } from 'react-notifications-component';
 import 'animate.css'
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '100vh',
@@ -77,44 +80,22 @@ export default function SignUp() {
         error += "Please enter matching passwords ! \n"
       }
       if (error !== "") {
-        store.addNotification({
-          title: "Error",
-          message: 'Please Fill in All Fields',
-          type: "danger",
-          insert: "bottom",
-          container: "bottom-right",
-          animationIn: ["animate__animated", "animate__fadeIn"],
-          animationOut: ["animate__animated", "animate__fadeOut"],
-          dismiss: {
-            duration: 5000,
-            onScreen: true,
-            showIcon: true
-          },
-          width: 400
-        });      
+        toast.error("Please Fill In All Fields")   
       }
       else {
         const data = await signup({ name, email, password })
         console.log(data)
-        history.push('/login')
+        if (data['result'] == "failure"){
+            toast.error('Email Already Exists')
+        }
+        else{
+            history.push('/login')
+        }
+        
       }
     } catch (e) {
       console.log(e)
-      store.addNotification({
-        title: "Error",
-        message: 'An Error Occurred',
-        type: "danger",
-        insert: "bottom",
-        container: "bottom-right",
-        animationIn: ["animate__animated", "animate__fadeIn"],
-        animationOut: ["animate__animated", "animate__fadeOut"],
-        dismiss: {
-          duration: 5000,
-          onScreen: true,
-          showIcon: true
-        },
-        width: 400
-      });
+      toast.error("An Error Occurred")
     }
     
 
@@ -125,6 +106,7 @@ export default function SignUp() {
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
+      <ToastContainer />
       <Grid item xs={false} sm={4} md={7} className={classes.image} />
       <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
         <div className={classes.paper}>

@@ -18,7 +18,8 @@ import { store } from 'react-notifications-component';
 import 'animate.css'
 import { GoogleLogin } from 'react-google-login';
 import { useHistory } from "react-router-dom";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -80,57 +81,15 @@ export default function Login() {
             }
             if (error !== "") {
                 console.log(error)
-                store.addNotification({
-                    title: "Error",
-                    message: error,
-                    type: "danger",
-                    insert: "bottom",
-                    container: "bottom-right",
-                    animationIn: ["animate__animated", "animate__fadeIn"],
-                    animationOut: ["animate__animated", "animate__fadeOut"],
-                    dismiss: {
-                        duration: 5000,
-                        onScreen: true,
-                        showIcon: true
-                    },
-                    width: 400
-                });
+                toast.error('Please fill in all fields')
             }
             else {
                 const data = await login({ email, password })
                 if (data.result === "Wrong Password") {
-                    store.addNotification({
-                        title: "Error",
-                        message: "Wrong password entered",
-                        type: "danger",
-                        insert: "bottom",
-                        container: "bottom-right",
-                        animationIn: ["animate__animated", "animate__fadeIn"],
-                        animationOut: ["animate__animated", "animate__fadeOut"],
-                        dismiss: {
-                            duration: 5000,
-                            onScreen: true,
-                            showIcon: true
-                        },
-                        width: 400
-                    });
+                    toast.error('wrong password entered')
                 }
                 else if (data.result === "No such email exists") {
-                    store.addNotification({
-                        title: "Error",
-                        message: "No such email exists",
-                        type: "danger",
-                        insert: "bottom",
-                        container: "bottom-right",
-                        animationIn: ["animate__animated", "animate__fadeIn"],
-                        animationOut: ["animate__animated", "animate__fadeOut"],
-                        dismiss: {
-                            duration: 5000,
-                            onScreen: true,
-                            showIcon: true
-                        },
-                        width: 400
-                    });
+                    toast.error('No such email exists')
                 }
                 else {
                     localStorage.setItem('email', email)
@@ -139,27 +98,14 @@ export default function Login() {
             }
         } catch (e) {
             console.log(e)
-            store.addNotification({
-                title: "Error",
-                message: 'An Error Occurred',
-                type: "danger",
-                insert: "bottom",
-                container: "bottom-right",
-                animationIn: ["animate__animated", "animate__fadeIn"],
-                animationOut: ["animate__animated", "animate__fadeOut"],
-                dismiss: {
-                    duration: 5000,
-                    onScreen: true,
-                    showIcon: true
-                },
-                width: 400
-            });
+            toast.error('An error Occurred')
         }
     }
 
     return (
         <Grid container component="main" className={classes.root}>
             <CssBaseline />
+            <ToastContainer />
             <Grid item xs={false} sm={4} md={7} className={classes.image} />
             <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
                 <div className={classes.paper}>

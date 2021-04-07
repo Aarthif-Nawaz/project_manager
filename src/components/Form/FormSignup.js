@@ -9,8 +9,10 @@ import 'animate.css'
 import {useHistory} from 'react-router-dom'
 import Fab from '@material-ui/core/Fab'
 import DeleteIcon from '@material-ui/icons/Delete';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-function FormSignup() {
+export default function FormSignup() {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -28,40 +30,12 @@ function FormSignup() {
     e.preventDefault()
     try{
       if (!name.trim().length || !description.trim().length || worktypes.length === 0 || contractors.length === 0 || users.length === 0) {
-        store.addNotification({
-          title: "Error",
-          message: 'Please Fill in All Fields',
-          type: "danger",
-          insert: "bottom",
-          container: "bottom-right",
-          animationIn: ["animate__animated", "animate__fadeIn"],
-          animationOut: ["animate__animated", "animate__fadeOut"],
-          dismiss: {
-            duration: 5000,
-            onScreen: true,
-            showIcon: true
-          },
-          width: 400
-        });
+        toast.error('Please fill in all fields')
       }
       else {
         const data = await addProject({ email, name, description, worktypes, contractors, users, action: "Add" })
         if (data.result === "failure") {
-          store.addNotification({
-            title: "Error",
-            message: 'An Error Occurred',
-            type: "danger",
-            insert: "bottom",
-            container: "bottom-right",
-            animationIn: ["animate__animated", "animate__fadeIn"],
-            animationOut: ["animate__animated", "animate__fadeOut"],
-            dismiss: {
-              duration: 5000,
-              onScreen: true,
-              showIcon: true
-            },
-            width: 400
-          });
+          toast.error('An error occurred !')
         }
         else{
           history.push('/project')
@@ -114,6 +88,7 @@ function FormSignup() {
 
   return (
     <div className='form-content-right' style={{overflowY:'scroll', overflowX:'scroll'}}>
+      <ToastContainer />
       <form onSubmit={handleSubmit} className='form' noValidate>
         <div className='form-inputs'>
           <label className='form-label'>Name</label>
@@ -214,4 +189,4 @@ function FormSignup() {
 };
 
 
-export default FormSignup;
+

@@ -4,6 +4,16 @@ import rough from 'roughjs/bundled/rough.esm'
 import { useScreenshot } from 'use-react-screenshot'
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { IconButton } from '@material-ui/core';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import ModalForm from '../components/ModalForm'
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { format } from "date-fns";
+import Fab from '@material-ui/core/Fab'
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
+import { store } from 'react-notifications-component';
+import 'animate.css'
 
 const useHistory = initialState => {
     const [index, setIndex] = useState(0);
@@ -32,8 +42,11 @@ function Draw(props) {
     const [drawing, setDrawing] = useState("")
     const [elements, setElements, undo, redo] = useHistory([]);
     const [selectedElement, setSelectedElement] = useState(null)
-
+    const [open,setOpen] = useState(false)
+    const [img,setImg] = useState(props.location.state.detail)
     const [tool, setTool] = useState('')
+
+    
 
     const ref = createRef(null)
     const [screenshot, takeScreenshot] = useScreenshot()
@@ -45,7 +58,13 @@ function Draw(props) {
 
     const generator = rough.generator()
 
-    
+    const filterCAD = () => {
+        setOpen(true)
+        getImage().then((value) => {
+            setImg(value)
+        })
+
+    }
 
     useEffect(() => {
         const undoRedoFunction = event => {
@@ -214,7 +233,7 @@ function Draw(props) {
         }
         setDrawing("none");
         setSelectedElement(null);
-        getImage()
+        
 
     }
 
@@ -234,7 +253,7 @@ function Draw(props) {
                 <h1>Edit Image</h1>
                 <div style={{
                     marginTop: 50,
-                    marginLeft: -200
+                    marginLeft: -250
                 }}>
                     <input style={{ margin: 10 }} type="radio" id="draw" checked={tool === "draw"} onChange={() => setTool("draw")} />
                     <label htmlFor="draw">Draw </label>
@@ -243,8 +262,9 @@ function Draw(props) {
                     <button color={'primary'} style={{ margin: 10 }} onClick={undo}>Undo</button>
                     <button color={'primary'} style={{ margin: 10 }} onClick={redo}>Redo</button>
                 </div>
-                <IconButton color="primary" style={{ position: 'absolute', right: '1%' }} component="span"><CheckBoxIcon style={{ width: 70, height: 70 }} /></IconButton>
+                <IconButton onClick={filterCAD} color="primary" style={{ position: 'absolute', right: '1%' }} component="span"><CheckBoxIcon style={{ width: 70, height: 70 }} /></IconButton>
             </div>
+            {open ? <ModalForm image={img} open={() => setOpen(true)} handleClose={() => setOpen(false)} backdrop="static" /> : null}
             <div style={{ marginTop: '20px' }} ref={ref}>
                 <div style={{
                     backgroundImage: `url(${image})`,
