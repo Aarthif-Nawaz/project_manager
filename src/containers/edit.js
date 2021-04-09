@@ -80,6 +80,8 @@ export default function Edit(props) {
         const res = await addImage(data)
         if (res.result === "success") {
             toast.success("CAD Uploaded. Please Refresh Page !")
+            const notify = await getProjects({ email, notification: `${new Date()} -  Uploaded CAD : ${image.name}` ,action: "NOTIFICATION" })
+
         }
     }
 
@@ -101,7 +103,7 @@ export default function Edit(props) {
                             buttonText='Select Image'
                             singleImage={true}
                             onChange={(event) => handleChange(event)}
-                            imgExtension={['.jpg', '.gif', '.png', '.jiff']}
+                            imgExtension={['.jpg', '.gif', '.png', '.jiff', '.dwg']}
                             maxFileSize={5242880}
                         />{upload ? <Fab style={{ marginLeft: '60px' }} variant='extended' color='primary' size='large' onClick={handleSubmit} >Upload</Fab> : <></>}</div>}
                     >
@@ -124,17 +126,18 @@ export default function Edit(props) {
                     <div key={index} style={{ marginLeft: '40px', float: 'left', width: '30%', paddign: '50px', marginTop: '20px' }}>
                         {show ? <BootstrapCard className="anime" style={{ width: '400', height: '300' }}>
                             <BootstrapCard.Img variant="top" src={img['image']} />
-                            <BootstrapCard.Title>Description : {img['description']}</BootstrapCard.Title>
                             <BootstrapCard.Body>
-                                <BootstrapCard.Text>
+                                {/* <BootstrapCard.Text>
                                     {img['worktype'] !== undefined ? img['worktype'].map((work) => (
                                         <li> <b>Worktype</b> : {work} </li>
                                     )) : null}
                                     {img['contractor'] !== undefined ? img['contractor'].map((con) => (
                                         <li> <b>Contractor</b> : {con} </li>
                                     )) : null}
-                                </BootstrapCard.Text>
-                                <Fab size={"medium"} variant="extended" color="primary" onClick={() => editImage(img._id, img.image)}> Filter Image </Fab>
+                                </BootstrapCard.Text> */}
+                                <Fab size={"medium"} style={{
+                                    marginLeft:120
+                                }} variant="extended" color="primary" onClick={() => editImage(img._id, img.image)}> Filter Image </Fab>
                             </BootstrapCard.Body>
                         </BootstrapCard> : <img src={img['image']} style={{ cursor: 'grabbing' }} width="400px" height="300px" onClick={() => editImage(img._id, img.image)} />}
                     </div>

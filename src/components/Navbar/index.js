@@ -30,13 +30,19 @@ const Navbar = () => {
         </NavLink>
         <Bars />
         <NavMenu>
-          <NavLink to='/home' activeStyle>
+          <NavLink style={{
+            textDecoration : 'none'
+          }} to='/home' activeStyle>
             Notification & Feeds
           </NavLink>
-          <NavLink to='/addProjects' activeStyle>
+          <NavLink style={{
+            textDecoration : 'none'
+          }} to='/addProjects' activeStyle>
             Add Project
           </NavLink>
-          <NavLink to='/project' activeStyle>
+          <NavLink style={{
+            textDecoration : 'none'
+          }} to='/project' activeStyle>
             View Projects
           </NavLink>
         </NavMenu>

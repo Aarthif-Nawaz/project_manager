@@ -18,32 +18,43 @@ function Projects(props) {
         history.push('/addProjects')
     }
 
-    useEffect(() => {
-        
-        const fetchData = async () => {
-            try {
-                const data = await getProjects({ email, action: "GET" });
-                setProjects(data['result'])
-                console.log(projects)
-            } catch (e) {
-                console.log(e)
-            }
-
+    const deleteProject = async(id, name) => {
+        const data = await getProjects({ id, action: "DELETE_PROJECT" });
+        if(data['result'] === "success"){
+            fetchData()
+            const notify = await getProjects({ email, notification: `${new Date()} -  Deleted Project : Project ${name}` ,action: "NOTIFICATION" })
+            
         }
+        
+    }
+
+    const fetchData = async () => {
+        try {
+            const data = await getProjects({ email, action: "GET" });
+            if(data['result'] !== "Failure"){
+                setProjects(data['result'])
+            }
+            console.log(projects)
+        } catch (e) {
+            console.log(e)
+        }
+
+    }
+
+    useEffect(() => {   
         fetchData()
     },[projects.length])
     
     return (
         <div>
             <Navbar />
-            <h1>Projects</h1>
             {projects.map((proj, index) => (
                 <Card
                     key={index}
                     style={{ margin: 25, width: '80%' }}
                     type="inner"
                     title={proj.name}
-                    extra={<div><a href={`/edit/${proj._id}`}>Edit</a><a style={{color:'red', marginLeft:'10px'}} href={`/edit/${proj._id}`}>Delete</a></div>}
+                    extra={<div><a href={`/edit/${proj._id}`}>Edit</a><a style={{color:'red', marginLeft:'10px'}} onClick={() => deleteProject(proj._id, proj.name)}>Delete</a></div>}
                 >
 
                     Description : {proj.description}

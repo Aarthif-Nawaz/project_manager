@@ -4,8 +4,10 @@ import rough from 'roughjs/bundled/rough.esm'
 import { useScreenshot } from 'use-react-screenshot'
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { IconButton } from '@material-ui/core';
+import SettingsIcon from '@material-ui/icons/Settings';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import ModalForm from '../components/ModalForm'
+import ModalFilterForm from '../components/ModalFilterForm'
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
@@ -14,6 +16,7 @@ import ReactNotification from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css'
 import { store } from 'react-notifications-component';
 import 'animate.css'
+import { getImage } from '../service'
 
 const useHistory = initialState => {
     const [index, setIndex] = useState(0);
@@ -40,17 +43,19 @@ const useHistory = initialState => {
 
 function Draw(props) {
     const [drawing, setDrawing] = useState("")
-    const [elements, setElements, undo, redo] = useHistory([]);
+    const [elements, setElements, undo, redo] = useState([]);
     const [selectedElement, setSelectedElement] = useState(null)
-    const [open,setOpen] = useState(false)
-    const [img,setImg] = useState(props.location.state.detail)
+    const [open, setOpen] = useState(false)
+    const [img, setImg] = useState(props.location.state.detail)
     const [tool, setTool] = useState('')
+    const [filteropen,setFilteropen] = useState(false)
 
-    
+   
+
 
     const ref = createRef(null)
     const [screenshot, takeScreenshot] = useScreenshot()
-    const getImage = () => takeScreenshot(ref.current)
+    const getImageScreen = () => takeScreenshot(ref.current)
 
     const id = useParams('id')['id']
     const project_id = useParams('project_id')['project_id']
@@ -60,11 +65,44 @@ function Draw(props) {
 
     const filterCAD = () => {
         setOpen(true)
-        getImage().then((value) => {
+        getImageScreen().then((value) => {
             setImg(value)
         })
 
     }
+
+    const filterOutCAD = () => {
+        setFilteropen(true)
+        setElements([])
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            let arr = []
+            console.log(id)
+            const data_image = await getImage({ id: id, action: "GET_IMAGE_BY_IDs" })
+            if ('elements' in data_image['result']) {
+                for (let index = 0; index < data_image['result']['elements'].length; index++) {
+                    const id = data_image['result']['elements'][index][0]['id']
+                    const x1 = data_image['result']['elements'][index][0]['x1']
+                    const y1 = data_image['result']['elements'][index][0]['y1']
+                    const x2 = data_image['result']['elements'][index][0]['x2']
+                    const y2 = data_image['result']['elements'][index][0]['y2']
+                    
+                    const element = createElement(id,x1,y1,x2,y2)
+                    console.log(element)
+                    arr.push(element)
+                    
+                }
+                setElements(prevState => [...prevState,...arr])
+               
+            }
+
+        }
+        fetchData()
+        
+    }, [])
+
 
     useEffect(() => {
         const undoRedoFunction = event => {
@@ -101,9 +139,24 @@ function Draw(props) {
 
     const updateElement = (id, x1, y1, x2, y2) => {
         const updatedElement = createElement(id, x1, y1, x2, y2)
+        console.log(elements)
         const elementsCopy = [...elements]
         elementsCopy[id] = updatedElement
+        console.log(elementsCopy)
         setElements(elementsCopy)
+    }
+
+    let arr = []
+    const filteredCAD = (id,x1,x2,y1,y2) => {
+        const element = createElement(id,x1,y1,x2,y2)
+        arr.push(element)
+        setElements(prevState => [...prevState,...arr])  
+    }
+
+    const getImages = () => {
+        getImageScreen().then((value) => {
+            setImg(value)
+        })
     }
 
     const nearPoint = (x, y, x1, y1, name) => {
@@ -187,13 +240,16 @@ function Draw(props) {
             }
         } else {
             const id = elements.length;
-            const element = createElement(id, clientX, clientY, clientX, clientY, tool);
+            const element = createElement(id, clientX, clientY, clientX, clientY);
             setElements(prevState => [...prevState, element]);
             setSelectedElement(element);
 
             setDrawing("drawing");
         }
     }
+
+    
+    
 
     const handleMouseMove = (event) => {
         const { clientX, clientY } = event
@@ -233,16 +289,29 @@ function Draw(props) {
         }
         setDrawing("none");
         setSelectedElement(null);
-        
+
 
     }
 
-    
+
 
 
 
     return (
         <div>
+            <div ref={ref}>
+                <div style={{
+                    backgroundImage: `url(${image})`,
+                    height: 650,
+                    width: '100%',
+                }}  >
+                    <canvas id="canvas" width={window.innerWidth} height={window.innerHeight}
+                        onMouseDown={(event) => handleMouseDown(event)}
+                        onMouseMove={(event) => handleMouseMove(event)}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                    >Canvas</canvas></div>
+            </div>
             <div style={{
                 display: 'flex',
                 flexDirection: 'row',
@@ -253,31 +322,19 @@ function Draw(props) {
                 <h1>Edit Image</h1>
                 <div style={{
                     marginTop: 50,
-                    marginLeft: -250
+                    marginLeft: -200
                 }}>
                     <input style={{ margin: 10 }} type="radio" id="draw" checked={tool === "draw"} onChange={() => setTool("draw")} />
                     <label htmlFor="draw">Draw </label>
                     <input style={{ margin: 10 }} type="radio" id="selection" checked={tool === "selection"} onChange={() => setTool("selection")} />
                     <label htmlFor="selection">Selection </label>
-                    <button color={'primary'} style={{ margin: 10 }} onClick={undo}>Undo</button>
-                    <button color={'primary'} style={{ margin: 10 }} onClick={redo}>Redo</button>
                 </div>
                 <IconButton onClick={filterCAD} color="primary" style={{ position: 'absolute', right: '1%' }} component="span"><CheckBoxIcon style={{ width: 70, height: 70 }} /></IconButton>
+                <IconButton onClick={filterOutCAD} color="primary" style={{ position: 'absolute', right: '6%' }} component="span"><SettingsIcon style={{ width: 70, height: 70 }} /></IconButton>
             </div>
-            {open ? <ModalForm image={img} open={() => setOpen(true)} handleClose={() => setOpen(false)} backdrop="static" /> : null}
-            <div style={{ marginTop: '20px' }} ref={ref}>
-                <div style={{
-                    backgroundImage: `url(${image})`,
-                    height: window.innerHeight,
-                    width: window.innerWidth
-                }}  >
-                    <canvas id="canvas" width={window.innerWidth} height={window.innerHeight}
-                        onMouseDown={(event) => handleMouseDown(event)}
-                        onMouseMove={(event) => handleMouseMove(event)}
-                        onMouseUp={handleMouseUp}
-                        onMouseLeave={handleMouseUp}
-                    >Canvas</canvas></div>
-            </div>
+            {open ? <ModalForm image={img} element={elements} open={() => setOpen(true)} handleClose={() => setOpen(false)} backdrop="static" /> : null}
+            {filteropen ? <ModalFilterForm filteredCAD={filteredCAD} image={img} images={getImages} element={elements} open={() => setFilteropen(true)} handleClose={() => setFilteropen(false)} backdrop="static" /> : null}
+
         </div>
     );
 }

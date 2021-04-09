@@ -14,14 +14,10 @@ import Calendar from 'react-calendar';
 import { useParams } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab'
-import ReactNotification from 'react-notifications-component'
-import 'react-notifications-component/dist/theme.css'
-import { store } from 'react-notifications-component';
-import 'animate.css'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import jsPDF from "jspdf";
-export default function ModalForm(props) {
+export default function ModalFilterForm(props) {
 
     const useStyles = makeStyles((theme) => ({
         formControl: {
@@ -37,27 +33,14 @@ export default function ModalForm(props) {
     const [projects, setProjects] = useState([])
     const [worktype, setWorktype] = useState('')
     const [contractor, setContractor] = useState('')
-    const [description, setDescription] = useState('')
-    const [currentvalue, setCurrentvalue] = useState(new Date());
+    
     const id = useParams('id')['id']
-    const email = localStorage.getItem('email')
     const project_id = useParams('project_id')['project_id']
     const image = props.image
     const element = props.element
+    
+    const email = localStorage.getItem('email')
 
-    const generatePDF = () => {
-        const doc = new jsPDF();
-        doc.setFontSize(40);
-        doc.text(30, 20, 'Filtered CAD Drawing !');
-        doc.addImage(image, 'JPEG', 15, 40, 180, 160);
-        doc.output('CADImage');
-        doc.text(30, 220, `Worktype :  ${worktype}`);
-        doc.text(30, 240, `Contractor :  ${contractor}`);
-        doc.text(30, 260, `Description :  ${description}`);
-        doc.text(30, 280, `Date :  ${currentvalue}`);
-        doc.save(`CAD.pdf`);
-        
-    }
 
     const fetchData = async () => {
         const data = await getProjects({ id: project_id, action: "GET_BY_ID" })
@@ -67,34 +50,64 @@ export default function ModalForm(props) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (worktype === "" && contractor === "" && description === "") {
-            toast.error("Please fill in all fields")
+        let arr = []
+        const data_image = await getImage({ id: id, action: "GET_IMAGE_BY_IDs" })
+        if (contractor === "" &&  worktype == ""){
+            toast.error("Plesae Select a filed")
         }
-        else {
-            const data = await getImage({ id: id, worktype, contractor, description, element, action: "UPDATE_IMAGE_BY_ID" })
-            if (data['result'] == "failure") {
-                toast.error('An error occurred')
-            }
-            else {
-                toast.success('Successfull Filtered CAD')
-                const notify = await getProjects({ email, notification: `${new Date()} -  Saved Marking` ,action: "NOTIFICATION" })
+        else if (contractor !== "" && worktype !== ""){
+            for (let index = 0; index < data_image['result']['contractor'].length; index++) {
+                if(data_image['result']['contractor'][index] === contractor && data_image['result']['worktype'][index] === worktype){
+                    const id = data_image['result']['elements'][index][0]['id']
+                    const x1 = data_image['result']['elements'][index][0]['x1']
+                    const y1 = data_image['result']['elements'][index][0]['y1']
+                    const x2 = data_image['result']['elements'][index][0]['x2']
+                    const y2 = data_image['result']['elements'][index][0]['y2']
+                    props.filteredCAD(id,x1,x2,y1,y2)
+                }
+                
             }
         }
+        else if (contractor !== ""){
+            for (let index = 0; index < data_image['result']['contractor'].length; index++) {
+                if(data_image['result']['contractor'][index] === contractor){
+                    const id = data_image['result']['elements'][index][0]['id']
+                    const x1 = data_image['result']['elements'][index][0]['x1']
+                    const y1 = data_image['result']['elements'][index][0]['y1']
+                    const x2 = data_image['result']['elements'][index][0]['x2']
+                    const y2 = data_image['result']['elements'][index][0]['y2']
+                    props.filteredCAD(id,x1,x2,y1,y2)
+                }
+                
+            }
+        }
+        else if (worktype !== ""){
+            for (let index = 0; index < data_image['result']['worktype'].length; index++) {
+                if(data_image['result']['worktype'][index] === worktype){
+                    const id = data_image['result']['elements'][index][0]['id']
+                    const x1 = data_image['result']['elements'][index][0]['x1']
+                    const y1 = data_image['result']['elements'][index][0]['y1']
+                    const x2 = data_image['result']['elements'][index][0]['x2']
+                    const y2 = data_image['result']['elements'][index][0]['y2']
+                    props.filteredCAD(id,x1,x2,y1,y2)
+                }
+                
+            }
+
+        }
+        const notify = await getProjects({ email, notification: `${new Date()} -  Filtered Marking` ,action: "NOTIFICATION" }) 
     }
 
-
     useEffect(() => {
-        console.log(currentvalue)
         fetchData()
     }, [])
     return (
         <Modal size="xl" show={props.open} onHide={props.handleClose} className="modal-container custom-map-modal" animation={true}>
             <ToastContainer />
             <ModalHeader closeButton>
-                <Fab size={"large"} variant="extended" color="primary" onClick={generatePDF}>Generate PDF</Fab>
                 <ModalTitle style={{
-                    marginLeft: 350
-                }}>Add CAD</ModalTitle>
+                    marginLeft:500
+                }}>Filter CAD</ModalTitle>
             </ModalHeader>
             <ModalBody style={{
                 height: 300
@@ -108,6 +121,7 @@ export default function ModalForm(props) {
                             value={worktype}
                             onChange={(e) => setWorktype(e.target.value)}
                         >
+                            <MenuItem value={""}>None</MenuItem>
 
                             {projects.map((proj) => (
                                 proj.worktypes.map((work) => (
@@ -124,6 +138,7 @@ export default function ModalForm(props) {
                             value={contractor}
                             onChange={(e) => setContractor(e.target.value)}
                         >
+                            <MenuItem value={""}>None</MenuItem>
                             {projects.map((proj) => (
                                 proj.contractors.map((con) => (
                                     <MenuItem value={con}>{con}</MenuItem>
@@ -131,24 +146,11 @@ export default function ModalForm(props) {
                             ))}
                         </Select>
                     </FormControl>
-                    <div style={{ marginLeft: -10 }}>
-                        <label className='form-label'>Description</label>
-                        <textarea
-                            className='form-input'
-                            rows={6}
-                            cols={20}
-                            placeholder='Enter Project Description'
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                        />
-                    </div>
-                    <label className='form-label'>Date</label>
-                    <input type="date" value={currentvalue} onChange={(e) => setCurrentvalue(e.target.value)} />
                 </form>
             </ModalBody>
             <ModalFooter>
                 <Fab color="primary" size="large" variant="extended" onClick={handleSubmit}>
-                    Save Markings
+                    Filter Markings
                 </Fab>
             </ModalFooter>
         </Modal>
