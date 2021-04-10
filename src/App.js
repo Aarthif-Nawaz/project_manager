@@ -9,6 +9,7 @@ import Projects from './containers/projects'
 import Edit from './containers/edit'
 import Feed from './containers/feed'
 import Draw from './containers/draw'
+import EditHome from './containers/editHome'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route exact path="/project" component={Projects} />
           <Route exact path="/addProjects" component={Home} />
           <Route exact path="/edit/:id" component={Edit} />
+          <Route exact path="/editProject/:id" component={EditHome} />
           <Route exact path="/filterCAD/:id/:project_id" component={Draw} />
         </Switch>
       </Router>

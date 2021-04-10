@@ -33,12 +33,12 @@ export default function ModalFilterForm(props) {
     const [projects, setProjects] = useState([])
     const [worktype, setWorktype] = useState('')
     const [contractor, setContractor] = useState('')
-    
+
     const id = useParams('id')['id']
     const project_id = useParams('project_id')['project_id']
     const image = props.image
     const element = props.element
-    
+
     const email = localStorage.getItem('email')
 
 
@@ -52,50 +52,51 @@ export default function ModalFilterForm(props) {
         e.preventDefault();
         let arr = []
         const data_image = await getImage({ id: id, action: "GET_IMAGE_BY_IDs" })
-        if (contractor === "" &&  worktype == ""){
+        if (contractor === "" && worktype == "") {
             toast.error("Plesae Select a filed")
         }
-        else if (contractor !== "" && worktype !== ""){
+        else if (contractor !== "" && worktype !== "") {
             for (let index = 0; index < data_image['result']['contractor'].length; index++) {
-                if(data_image['result']['contractor'][index] === contractor && data_image['result']['worktype'][index] === worktype){
+                if (data_image['result']['contractor'][index] === contractor && data_image['result']['worktype'][index] === worktype) {
                     const id = data_image['result']['elements'][index][0]['id']
                     const x1 = data_image['result']['elements'][index][0]['x1']
                     const y1 = data_image['result']['elements'][index][0]['y1']
                     const x2 = data_image['result']['elements'][index][0]['x2']
                     const y2 = data_image['result']['elements'][index][0]['y2']
-                    props.filteredCAD(id,x1,x2,y1,y2)
+                    props.filteredCAD(id, x1, x2, y1, y2)
                 }
-                
+
             }
         }
-        else if (contractor !== ""){
+        else if (contractor !== "") {
             for (let index = 0; index < data_image['result']['contractor'].length; index++) {
-                if(data_image['result']['contractor'][index] === contractor){
+                if (data_image['result']['contractor'][index] === contractor) {
                     const id = data_image['result']['elements'][index][0]['id']
                     const x1 = data_image['result']['elements'][index][0]['x1']
                     const y1 = data_image['result']['elements'][index][0]['y1']
                     const x2 = data_image['result']['elements'][index][0]['x2']
                     const y2 = data_image['result']['elements'][index][0]['y2']
-                    props.filteredCAD(id,x1,x2,y1,y2)
+                    props.filteredCAD(id, x1, x2, y1, y2)
                 }
-                
+
             }
         }
-        else if (worktype !== ""){
+        else if (worktype !== "") {
             for (let index = 0; index < data_image['result']['worktype'].length; index++) {
-                if(data_image['result']['worktype'][index] === worktype){
+                if (data_image['result']['worktype'][index] === worktype) {
                     const id = data_image['result']['elements'][index][0]['id']
                     const x1 = data_image['result']['elements'][index][0]['x1']
                     const y1 = data_image['result']['elements'][index][0]['y1']
                     const x2 = data_image['result']['elements'][index][0]['x2']
                     const y2 = data_image['result']['elements'][index][0]['y2']
-                    props.filteredCAD(id,x1,x2,y1,y2)
+                    props.filteredCAD(id, x1, x2, y1, y2)
                 }
-                
+
             }
 
         }
-        const notify = await getProjects({ email, notification: `${new Date()} -  Filtered Marking` ,action: "NOTIFICATION" }) 
+        props.passValue(worktype,contractor)
+        const notify = await getProjects({ email, notification: `${new Date()} -  Filtered Marking`, action: "NOTIFICATION" })
     }
 
     useEffect(() => {
@@ -106,7 +107,7 @@ export default function ModalFilterForm(props) {
             <ToastContainer />
             <ModalHeader closeButton>
                 <ModalTitle style={{
-                    marginLeft:500
+                    marginLeft: 500
                 }}>Filter CAD</ModalTitle>
             </ModalHeader>
             <ModalBody style={{

@@ -17,8 +17,18 @@ function Feed(props) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await getProjects({ email, action: "GET_NOTIFICATION" })
-            setFeeds(data['result']['notifications'])
+            try{
+                const data = await getProjects({ email, action: "GET_NOTIFICATION" })
+                if ('notifications' in data['result']){
+                    setFeeds(data['result']['notifications'])
+                }
+            }
+            catch(e){
+                console.log(e)
+            }
+           
+            
+            
         }
         fetchData()
     }, [feed.length])
@@ -26,7 +36,7 @@ function Feed(props) {
     return (
         <div>
             <Navbar />
-            {feed.map((f) => (
+            {feed.length > 0 ? feed.map((f) => (
                 <div style={{
                     margin:20,
                 }}>
@@ -34,7 +44,7 @@ function Feed(props) {
                     <BootstrapCard.Body>{f}</BootstrapCard.Body>
                 </BootstrapCard>
                 </div>
-            ))}
+            )) : null}
         </div>
     );
 }

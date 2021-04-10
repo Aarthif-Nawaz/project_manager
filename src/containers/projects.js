@@ -29,12 +29,23 @@ function Projects(props) {
     }
 
     const fetchData = async () => {
+        let arr = []
         try {
             const data = await getProjects({ email, action: "GET" });
             if(data['result'] !== "Failure"){
-                setProjects(data['result'])
+                for (let index = 0; index < data['result'].length; index++) {
+                    arr.push(data['result'][index])    
+                }
+
             }
-            console.log(projects)
+            const data_user = await getProjects({user:email, action: "GET_BY_USER"})
+            if(data_user['result'] != "Failure"){
+                for (let index = 0; index < data_user['result'].length; index++) {
+                    arr.push(data_user['result'][index])    
+                }
+                // setProjects(data_user['result'])
+            }
+            setProjects(arr)
         } catch (e) {
             console.log(e)
         }
@@ -43,7 +54,7 @@ function Projects(props) {
 
     useEffect(() => {   
         fetchData()
-    },[projects.length])
+    },[])
     
     return (
         <div>
@@ -51,13 +62,14 @@ function Projects(props) {
             {projects.map((proj, index) => (
                 <Card
                     key={index}
-                    style={{ margin: 25, width: '80%' }}
+                    style={{ margin: 25, width: '80%'}}
                     type="inner"
                     title={proj.name}
-                    extra={<div><a href={`/edit/${proj._id}`}>Edit</a><a style={{color:'red', marginLeft:'10px'}} onClick={() => deleteProject(proj._id, proj.name)}>Delete</a></div>}
+                    extra={<div><a style={{color:'green', marginRight:'20px', fontSize:18, fontWeight: 'bold', textDecoration:'none'}} href={`/editProject/${proj._id}`}>Edit Project </a><a style={{marginRight:'20px', fontSize:18, fontWeight: 'bold', textDecoration:'none'}} href={`/edit/${proj._id}`}>Edit</a><a style={{color:'red', marginLeft:'20px', fontSize:18, fontWeight: 'bold', textDecoration:'none'}} onClick={() => deleteProject(proj._id, proj.name)}>Delete</a></div>}
                 >
+                    
 
-                    Description : {proj.description}
+                    {/* Description : {proj.description}
                     {proj.worktypes.map((work) => (
                         <li> Worktype : {work} </li>
                     ))}
@@ -66,7 +78,7 @@ function Projects(props) {
                     ))}
                     {proj.users.map((usr) => (
                         <li> User : {usr}</li>
-                    ))}
+                    ))} */}
                 </Card>
             ))}
             <Fab style={{ position: 'fixed', right: '2%' }} onClick={AddProjects} color="primary" aria-label="add"><AddIcon /></Fab>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, createRef } from 'react';
 import { useParams } from 'react-router-dom'
 import rough from 'roughjs/bundled/rough.esm'
 import { useScreenshot } from 'use-react-screenshot'
+import CameraAltIcon from '@material-ui/icons/CameraAlt';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import { IconButton } from '@material-ui/core';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -50,6 +51,9 @@ function Draw(props) {
     const [tool, setTool] = useState('')
     const [filteropen,setFilteropen] = useState(false)
 
+    const [work,setWork] = useState()
+    const [con,setCon] = useState()
+    const [visible,setVisible] = useState(false)
    
 
 
@@ -62,6 +66,12 @@ function Draw(props) {
     const image = props.location.state.detail
 
     const generator = rough.generator()
+
+    const getScreenshot = () => {
+        getImageScreen().then((value) => {
+            setImg(value)
+        })
+    }
 
     const filterCAD = () => {
         setOpen(true)
@@ -103,6 +113,19 @@ function Draw(props) {
         
     }, [])
 
+   
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(28);
+        doc.text(30, 20, 'Filtered CAD Drawing !');
+        doc.addImage(img, 'JPEG', 15, 40, 180, 160);
+        doc.output('CADImage');
+        doc.text(30, 220, `Worktype :  ${work}`);
+        doc.text(30, 240, `Contractor :  ${con}`);
+        doc.save(`CAD.pdf`);
+    }
+
 
     useEffect(() => {
         const undoRedoFunction = event => {
@@ -124,8 +147,9 @@ function Draw(props) {
     useLayoutEffect(() => {
         const canvas = document.getElementById('canvas')
         const ctx = canvas.getContext('2d')
+        ctx.fillStyle = "#FF0000"
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-
+        
         const roughCanvas = rough.canvas(canvas)
 
         elements.forEach(({ roughElement }) => roughCanvas.draw(roughElement))
@@ -133,7 +157,7 @@ function Draw(props) {
     }, [elements])
 
     const createElement = (id, x1, y1, x2, y2) => {
-        const roughElement = generator.rectangle(x1, y1, x2 - x1, y2 - y1)
+        const roughElement = generator.rectangle(x1, y1, x2 - x1, y2 - y1, {roughness: 0.2, fill: 'blue'})
         return { id, x1, y1, x2, y2, roughElement }
     }
 
@@ -252,18 +276,22 @@ function Draw(props) {
     
 
     const handleMouseMove = (event) => {
+        
         const { clientX, clientY } = event
         if (tool === "selection") {
+            setVisible(false)
             const element = getElementAtPosition(clientX, clientY, elements);
             event.target.style.cursor = element ? cursorForPosition(element.position) : "default";
         }
         if (drawing == "drawing") {
+            setVisible(false)
             const index = elements.length - 1
             const { x1, y1 } = elements[index]
             updateElement(index, x1, y1, clientX, clientY)
 
         }
         else if (drawing == "moving") {
+            setVisible(false)
             const { id, x1, x2, y1, y2, offsetX, offsetY } = selectedElement
             const width = x2 - x1
             const height = y2 - y1
@@ -293,6 +321,12 @@ function Draw(props) {
 
     }
 
+    const passValue = (work,con) => {
+        setWork(work)
+        setCon(con)
+        setVisible(true)
+    }
+
 
 
 
@@ -302,8 +336,8 @@ function Draw(props) {
             <div ref={ref}>
                 <div style={{
                     backgroundImage: `url(${image})`,
-                    height: 650,
-                    width: '100%',
+                    backgroundRepeat : 'no-repeat',
+                    backgroundSize : '100% 620px',
                 }}  >
                     <canvas id="canvas" width={window.innerWidth} height={window.innerHeight}
                         onMouseDown={(event) => handleMouseDown(event)}
@@ -312,11 +346,11 @@ function Draw(props) {
                         onMouseLeave={handleMouseUp}
                     >Canvas</canvas></div>
             </div>
+            {visible ? <Fab size={"large"} variant="extended" color="primary" onClick={generatePDF}>Generate PDF</Fab> : null}
             <div style={{
                 display: 'flex',
                 flexDirection: 'row',
-                marginLeft: '700px',
-                marginTop: '30px'
+                marginLeft: '650px'
 
             }}>
                 <h1>Edit Image</h1>
@@ -329,11 +363,12 @@ function Draw(props) {
                     <input style={{ margin: 10 }} type="radio" id="selection" checked={tool === "selection"} onChange={() => setTool("selection")} />
                     <label htmlFor="selection">Selection </label>
                 </div>
+                <IconButton onClick={getImages} color="primary" style={{ position: 'absolute', right: '11%' }} component="span"><CameraAltIcon style={{ width: 70, height: 70 }} /></IconButton>
                 <IconButton onClick={filterCAD} color="primary" style={{ position: 'absolute', right: '1%' }} component="span"><CheckBoxIcon style={{ width: 70, height: 70 }} /></IconButton>
                 <IconButton onClick={filterOutCAD} color="primary" style={{ position: 'absolute', right: '6%' }} component="span"><SettingsIcon style={{ width: 70, height: 70 }} /></IconButton>
             </div>
             {open ? <ModalForm image={img} element={elements} open={() => setOpen(true)} handleClose={() => setOpen(false)} backdrop="static" /> : null}
-            {filteropen ? <ModalFilterForm filteredCAD={filteredCAD} image={img} images={getImages} element={elements} open={() => setFilteropen(true)} handleClose={() => setFilteropen(false)} backdrop="static" /> : null}
+            {filteropen ? <ModalFilterForm filteredCAD={filteredCAD} image={img} passValue={passValue} element={elements} open={() => setFilteropen(true)} handleClose={() => setFilteropen(false)} backdrop="static" /> : null}
 
         </div>
     );

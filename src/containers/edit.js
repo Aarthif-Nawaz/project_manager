@@ -95,20 +95,20 @@ export default function Edit(props) {
                         key={proj._id}
                         style={{ margin: 20, width: '95%' }}
                         type="inner"
-                        title={"Project Name : " + proj.name}
                         extra={<div><ImageUploader
+                        accept={"application/pdf, image/*"}
                             withPreview={true}
                             withLabel={true}
                             withIcon={true}
                             buttonText='Select Image'
                             singleImage={true}
                             onChange={(event) => handleChange(event)}
-                            imgExtension={['.jpg', '.gif', '.png', '.jiff', '.dwg']}
+                            imgExtension={['.jpg', '.gif', '.png', '.jiff', '.dwg','.pdf']}
                             maxFileSize={5242880}
                         />{upload ? <Fab style={{ marginLeft: '60px' }} variant='extended' color='primary' size='large' onClick={handleSubmit} >Upload</Fab> : <></>}</div>}
                     >
 
-                        <b>Description</b> : {proj.description}
+                        {/* <b>Description</b> : {proj.description}
                         {proj.worktypes.map((work) => (
                             <li> <b>Worktype</b> : {work} </li>
                         ))}
@@ -117,7 +117,7 @@ export default function Edit(props) {
                         ))}
                         {proj.users.map((usr) => (
                             <li> <b>User</b> : {usr}</li>
-                        ))}
+                        ))} */}
                     </Card>
                 )
             })}
@@ -125,7 +125,7 @@ export default function Edit(props) {
                 {images.map((img, index) => (
                     <div key={index} style={{ marginLeft: '40px', float: 'left', width: '30%', paddign: '50px', marginTop: '20px' }}>
                         {show ? <BootstrapCard className="anime" style={{ width: '400', height: '300' }}>
-                            <BootstrapCard.Img variant="top" src={img['image']} />
+                            <BootstrapCard.Img style={{ cursor: 'grabbing'}} onClick={() => editImage(img._id, img.image)} variant="top" src={img['image']} />
                             <BootstrapCard.Body>
                                 {/* <BootstrapCard.Text>
                                     {img['worktype'] !== undefined ? img['worktype'].map((work) => (
