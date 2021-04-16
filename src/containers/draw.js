@@ -49,12 +49,12 @@ function Draw(props) {
     const [open, setOpen] = useState(false)
     const [img, setImg] = useState(props.location.state.detail)
     const [tool, setTool] = useState('')
-    const [filteropen,setFilteropen] = useState(false)
+    const [filteropen, setFilteropen] = useState(false)
 
-    const [work,setWork] = useState()
-    const [con,setCon] = useState()
-    const [visible,setVisible] = useState(false)
-   
+    const [work, setWork] = useState()
+    const [con, setCon] = useState()
+    const [visible, setVisible] = useState(false)
+
 
 
     const ref = createRef(null)
@@ -86,34 +86,16 @@ function Draw(props) {
         setElements([])
     }
 
-    useEffect(() => {
-        const fetchData = async () => {
-            let arr = []
-            console.log(id)
-            const data_image = await getImage({ id: id, action: "GET_IMAGE_BY_IDs" })
-            if ('elements' in data_image['result']) {
-                for (let index = 0; index < data_image['result']['elements'].length; index++) {
-                    const id = data_image['result']['elements'][index][0]['id']
-                    const x1 = data_image['result']['elements'][index][0]['x1']
-                    const y1 = data_image['result']['elements'][index][0]['y1']
-                    const x2 = data_image['result']['elements'][index][0]['x2']
-                    const y2 = data_image['result']['elements'][index][0]['y2']
-                    
-                    const element = createElement(id,x1,y1,x2,y2)
-                    console.log(element)
-                    arr.push(element)
-                    
-                }
-                setElements(prevState => [...prevState,...arr])
-               
-            }
+    // useEffect(() => {
+    //     const fetchData = async () => {
 
-        }
-        fetchData()
-        
-    }, [])
 
-   
+    //     }
+    //     fetchData()
+
+    // }, [])
+
+
 
     const generatePDF = () => {
         const doc = new jsPDF();
@@ -149,7 +131,7 @@ function Draw(props) {
         const ctx = canvas.getContext('2d')
         ctx.fillStyle = "#FF0000"
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        
+
         const roughCanvas = rough.canvas(canvas)
 
         elements.forEach(({ roughElement }) => roughCanvas.draw(roughElement))
@@ -157,7 +139,7 @@ function Draw(props) {
     }, [elements])
 
     const createElement = (id, x1, y1, x2, y2) => {
-        const roughElement = generator.rectangle(x1, y1, x2 - x1, y2 - y1, {roughness: 0.2, fill: 'blue'})
+        const roughElement = generator.rectangle(x1, y1, x2 - x1, y2 - y1, { roughness: 0.2, fill: 'blue' })
         return { id, x1, y1, x2, y2, roughElement }
     }
 
@@ -171,10 +153,10 @@ function Draw(props) {
     }
 
     let arr = []
-    const filteredCAD = (id,x1,x2,y1,y2) => {
-        const element = createElement(id,x1,y1,x2,y2)
+    const filteredCAD = (id, x1, x2, y1, y2) => {
+        const element = createElement(id, x1, y1, x2, y2)
         arr.push(element)
-        setElements(prevState => [...prevState,...arr])  
+        setElements(prevState => [...prevState, ...arr])
     }
 
     const getImages = () => {
@@ -221,7 +203,7 @@ function Draw(props) {
     };
 
     const isWithinElement = (x, y, element) => {
-        const { x1, x2, y1, y2 } = element
+        const { id, x1, x2, y1, y2 } = element
         const topLeft = nearPoint(x, y, x1, y1, "tl");
         const topRight = nearPoint(x, y, x2, y1, "tr");
         const bottomLeft = nearPoint(x, y, x1, y2, "bl");
@@ -262,7 +244,20 @@ function Draw(props) {
                     setDrawing("resizing");
                 }
             }
-        } else {
+        } else if (tool == "erase") {
+            const element = getElementAtPosition(clientX, clientY, elements);
+            if (element) {
+                var array = [...elements]; // make a separate copy of the array
+                const index = array.findIndex(x => x.id === element.id)
+                if (index !== -1) {
+                    array.splice(index, 1);
+                    console.log(array)
+                    setElements([...array])
+                }
+                
+            }
+        }
+        else {
             const id = elements.length;
             const element = createElement(id, clientX, clientY, clientX, clientY);
             setElements(prevState => [...prevState, element]);
@@ -272,11 +267,11 @@ function Draw(props) {
         }
     }
 
-    
-    
+
+
 
     const handleMouseMove = (event) => {
-        
+
         const { clientX, clientY } = event
         if (tool === "selection") {
             setVisible(false)
@@ -321,10 +316,35 @@ function Draw(props) {
 
     }
 
-    const passValue = (work,con) => {
+    const passValue = (work, con) => {
         setWork(work)
         setCon(con)
         setVisible(true)
+    }
+
+    const viewAll = async () => {
+        let arr = []
+        console.log(id)
+        const data_image = await getImage({ id: id, action: "GET_IMAGE_BY_IDs" })
+        if ('elements' in data_image['result']) {
+            for (let index = 0; index < data_image['result']['elements'].length; index++) {
+                const id = data_image['result']['elements'][index][0]['id']
+                const x1 = data_image['result']['elements'][index][0]['x1']
+                const y1 = data_image['result']['elements'][index][0]['y1']
+                const x2 = data_image['result']['elements'][index][0]['x2']
+                const y2 = data_image['result']['elements'][index][0]['y2']
+
+                const element = createElement(id, x1, y1, x2, y2)
+                console.log(element)
+                arr.push(element)
+
+            }
+            setElements(prevState => [...prevState, ...arr])
+        }
+    }
+
+    const viewLess = () => {
+        setElements([])
     }
 
 
@@ -332,12 +352,16 @@ function Draw(props) {
 
 
     return (
-        <div>
+        <div style={{
+            width: 'fit-content',
+            height: 'fit-content',
+            display: 'inline-block'
+        }}>
             <div ref={ref}>
                 <div style={{
                     backgroundImage: `url(${image})`,
-                    backgroundRepeat : 'no-repeat',
-                    backgroundSize : '100% 620px',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '100% 620px',
                 }}  >
                     <canvas id="canvas" width={window.innerWidth} height={window.innerHeight}
                         onMouseDown={(event) => handleMouseDown(event)}
@@ -347,6 +371,8 @@ function Draw(props) {
                     >Canvas</canvas></div>
             </div>
             {visible ? <Fab size={"large"} variant="extended" color="primary" onClick={generatePDF}>Generate PDF</Fab> : null}
+            <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30 }} onClick={viewAll}>View All Markings</Fab>
+            <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30 }} onClick={viewLess}>View Blank Markings</Fab>
             <div style={{
                 display: 'flex',
                 flexDirection: 'row',
@@ -356,16 +382,18 @@ function Draw(props) {
                 <h1>Edit Image</h1>
                 <div style={{
                     marginTop: 50,
-                    marginLeft: -200
+                    marginLeft: -230
                 }}>
                     <input style={{ margin: 10 }} type="radio" id="draw" checked={tool === "draw"} onChange={() => setTool("draw")} />
                     <label htmlFor="draw">Draw </label>
                     <input style={{ margin: 10 }} type="radio" id="selection" checked={tool === "selection"} onChange={() => setTool("selection")} />
                     <label htmlFor="selection">Selection </label>
+                    <input style={{ margin: 10 }} type="radio" id="erase" checked={tool === "erase"} onChange={() => setTool("erase")} />
+                    <label htmlFor="erase">Erase </label>
                 </div>
-                <IconButton onClick={getImages} color="primary" style={{ position: 'absolute', right: '11%' }} component="span"><CameraAltIcon style={{ width: 70, height: 70 }} /></IconButton>
-                <IconButton onClick={filterCAD} color="primary" style={{ position: 'absolute', right: '1%' }} component="span"><CheckBoxIcon style={{ width: 70, height: 70 }} /></IconButton>
-                <IconButton onClick={filterOutCAD} color="primary" style={{ position: 'absolute', right: '6%' }} component="span"><SettingsIcon style={{ width: 70, height: 70 }} /></IconButton>
+                <Fab onClick={getImages} variant={'extended'} color="primary" style={{ position: 'absolute', right: '22%' }}>Take Screenshot</Fab>
+                <Fab onClick={filterCAD} variant={'extended'} color="primary" style={{ position: 'absolute', right: '1%' }}>Add Markings</Fab>
+                <Fab onClick={filterOutCAD} variant={'extended'} color="primary" style={{ position: 'absolute', right: '11%' }}>Filter Markings</Fab>
             </div>
             {open ? <ModalForm image={img} element={elements} open={() => setOpen(true)} handleClose={() => setOpen(false)} backdrop="static" /> : null}
             {filteropen ? <ModalFilterForm filteredCAD={filteredCAD} image={img} passValue={passValue} element={elements} open={() => setFilteropen(true)} handleClose={() => setFilteropen(false)} backdrop="static" /> : null}

@@ -6,6 +6,8 @@ import AddIcon from '@material-ui/icons/Add';
 import { useHistory } from 'react-router-dom'
 import 'antd/dist/antd.css';
 import { Card } from 'antd';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Projects(props) {
 
@@ -21,9 +23,12 @@ function Projects(props) {
     const deleteProject = async(id, name) => {
         const data = await getProjects({ id, action: "DELETE_PROJECT" });
         if(data['result'] === "success"){
+            toast.success(`Successfully Deleted Project :  ${id}`)
             fetchData()
-            const notify = await getProjects({ email, notification: `${new Date()} -  Deleted Project : Project ${name}` ,action: "NOTIFICATION" })
-            
+            const notify = await getProjects({ email, notification: `Deleted Project : Project ${name}` ,action: "NOTIFICATION" })
+        }
+        else{
+            toast.error("An error occurred while deleting. Please try again ")
         }
         
     }
@@ -59,6 +64,7 @@ function Projects(props) {
     return (
         <div>
             <Navbar />
+            <ToastContainer />
             {projects.map((proj, index) => (
                 <Card
                     key={index}

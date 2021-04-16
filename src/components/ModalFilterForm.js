@@ -96,7 +96,7 @@ export default function ModalFilterForm(props) {
 
         }
         props.passValue(worktype,contractor)
-        const notify = await getProjects({ email, notification: `${new Date()} -  Filtered Marking`, action: "NOTIFICATION" })
+        const notify = await getProjects({ email, notification: `Filtered Marking`, action: "NOTIFICATION" })
     }
 
     useEffect(() => {

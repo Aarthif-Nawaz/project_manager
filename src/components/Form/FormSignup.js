@@ -38,7 +38,7 @@ export default function FormSignup() {
           toast.error('An error occurred !')
         }
         else{
-          const notify = await addProject({ email, notification: `${new Date()} -  Project Added : Name ${name}` ,action: "NOTIFICATION" })
+          const notify = await addProject({ email, notification: `Project Added : Name ${name}` ,action: "NOTIFICATION" })
           if(notify.result === "success"){
             history.push('/project')
           }

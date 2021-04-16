@@ -75,12 +75,13 @@ export default function Edit(props) {
         console.log(image)
         const data = new FormData();
         data.append('file', image, image.name);
+        data.append('name',image.name)
         data.append('id', id)
         data.append('type', image.type)
         const res = await addImage(data)
         if (res.result === "success") {
             toast.success("CAD Uploaded. Please Refresh Page !")
-            const notify = await getProjects({ email, notification: `${new Date()} -  Uploaded CAD : ${image.name}` ,action: "NOTIFICATION" })
+            const notify = await getProjects({ email, notification: `Uploaded CAD : ${image.name}` ,action: "NOTIFICATION" })
 
         }
     }
@@ -137,7 +138,7 @@ export default function Edit(props) {
                                 </BootstrapCard.Text> */}
                                 <Fab size={"medium"} style={{
                                     marginLeft:120
-                                }} variant="extended" color="primary" onClick={() => editImage(img._id, img.image)}> Filter Image </Fab>
+                                }} variant="extended" color="primary" onClick={() => editImage(img._id, img.image)}> Open Drawing </Fab>
                             </BootstrapCard.Body>
                         </BootstrapCard> : <img src={img['image']} style={{ cursor: 'grabbing' }} width="400px" height="300px" onClick={() => editImage(img._id, img.image)} />}
                     </div>

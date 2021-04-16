@@ -51,7 +51,7 @@ function EditProject() {
           toast.error('An error occurred !')
         }
         else{
-          const notify = await addProject({ email, notification: `${new Date()} -  Project Edited : Name ${name}` ,action: "NOTIFICATION" })
+          const notify = await addProject({ email, notification: `Project Edited : Name ${name}` ,action: "NOTIFICATION" })
           if(notify.result === "success"){
             history.push('/project')
           }

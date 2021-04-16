@@ -45,6 +45,8 @@ export default function ModalForm(props) {
     const image = props.image
     const element = props.element
 
+    console.log(element)
+
     const generatePDF = () => {
         const doc = new jsPDF();
         doc.setFontSize(40);
@@ -77,7 +79,7 @@ export default function ModalForm(props) {
             }
             else {
                 toast.success('Successfull Filtered CAD')
-                const notify = await getProjects({ email, notification: `${new Date()} -  Saved Marking` ,action: "NOTIFICATION" })
+                const notify = await getProjects({ email, notification: `Saved Marking` ,action: "NOTIFICATION" })
             }
         }
     }
