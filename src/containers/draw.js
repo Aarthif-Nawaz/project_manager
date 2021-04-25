@@ -327,12 +327,14 @@ function Draw(props) {
         console.log(id)
         const data_image = await getImage({ id: id, action: "GET_IMAGE_BY_IDs" })
         if ('elements' in data_image['result']) {
+            console.log(data_image['result']['elements'][0][0])
             for (let index = 0; index < data_image['result']['elements'].length; index++) {
-                const id = data_image['result']['elements'][index][0]['id']
-                const x1 = data_image['result']['elements'][index][0]['x1']
-                const y1 = data_image['result']['elements'][index][0]['y1']
-                const x2 = data_image['result']['elements'][index][0]['x2']
-                const y2 = data_image['result']['elements'][index][0]['y2']
+                
+                const id = data_image['result']['elements'][index]['id']
+                const x1 = data_image['result']['elements'][index]['x1']
+                const y1 = data_image['result']['elements'][index]['y1']
+                const x2 = data_image['result']['elements'][index]['x2']
+                const y2 = data_image['result']['elements'][index]['y2']
 
                 const element = createElement(id, x1, y1, x2, y2)
                 console.log(element)
@@ -355,13 +357,13 @@ function Draw(props) {
         <div style={{
             width: 'fit-content',
             height: 'fit-content',
-            display: 'inline-block'
+            display: 'inline-block',
         }}>
             <div ref={ref}>
                 <div style={{
                     backgroundImage: `url(${image})`,
                     backgroundRepeat: 'no-repeat',
-                    backgroundSize: '100% 620px',
+                    backgroundSize: '750px 720px',
                 }}  >
                     <canvas id="canvas" width={window.innerWidth} height={window.innerHeight}
                         onMouseDown={(event) => handleMouseDown(event)}
@@ -371,7 +373,7 @@ function Draw(props) {
                     >Canvas</canvas></div>
             </div>
             {visible ? <Fab size={"large"} variant="extended" color="primary" onClick={generatePDF}>Generate PDF</Fab> : null}
-            <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30 }} onClick={viewAll}>View All Markings</Fab>
+            <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30}} onClick={viewAll}>View All Markings</Fab>
             <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30 }} onClick={viewLess}>View Blank Markings</Fab>
             <div style={{
                 display: 'flex',
