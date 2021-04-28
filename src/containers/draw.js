@@ -86,14 +86,9 @@ function Draw(props) {
         setElements([])
     }
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-
-
-    //     }
-    //     fetchData()
-
-    // }, [])
+    useEffect(() => {
+        viewAll()
+    }, [])
 
 
 
@@ -247,8 +242,11 @@ function Draw(props) {
         } else if (tool == "erase") {
             const element = getElementAtPosition(clientX, clientY, elements);
             if (element) {
-                const data_image = await getImage({ id: id, index: element.id, action: "ERASE_IMAGE" })
-                console.log(data_image)
+                try{
+                    const data_image = await getImage({ id: id, index: element.id, action: "ERASE_IMAGE" })
+                }catch(e){
+                    console.log(e)
+                }
                 var array = [...elements]; 
                 const index = array.findIndex(x => x.id === element.id)
                 if (index !== -1) {
@@ -375,8 +373,6 @@ function Draw(props) {
                     >Canvas</canvas></div>
             </div>
             {visible ? <Fab size={"large"} variant="extended" color="primary" onClick={generatePDF}>Generate PDF</Fab> : null}
-            <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30}} onClick={viewAll}>View All Markings</Fab>
-            <Fab size={"large"} variant="extended" color="primary" style={{ marginLeft: 30 }} onClick={viewLess}>View Blank Markings</Fab>
             <div style={{
                 display: 'flex',
                 flexDirection: 'row',
