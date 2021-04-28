@@ -228,7 +228,7 @@ function Draw(props) {
         return { x1: minX, y1: minY, x2: maxX, y2: maxY }
     }
 
-    const handleMouseDown = (event) => {
+    const handleMouseDown = async (event) => {
         const { clientX, clientY } = event;
         if (tool === "selection") {
             const element = getElementAtPosition(clientX, clientY, elements);
@@ -247,7 +247,9 @@ function Draw(props) {
         } else if (tool == "erase") {
             const element = getElementAtPosition(clientX, clientY, elements);
             if (element) {
-                var array = [...elements]; // make a separate copy of the array
+                const data_image = await getImage({ id: id, index: element.id, action: "ERASE_IMAGE" })
+                console.log(data_image)
+                var array = [...elements]; 
                 const index = array.findIndex(x => x.id === element.id)
                 if (index !== -1) {
                     array.splice(index, 1);
@@ -330,11 +332,11 @@ function Draw(props) {
             console.log(data_image['result']['elements'][0][0])
             for (let index = 0; index < data_image['result']['elements'].length; index++) {
                 
-                const id = data_image['result']['elements'][index]['id']
-                const x1 = data_image['result']['elements'][index]['x1']
-                const y1 = data_image['result']['elements'][index]['y1']
-                const x2 = data_image['result']['elements'][index]['x2']
-                const y2 = data_image['result']['elements'][index]['y2']
+                const id = data_image['result']['elements'][index][0]['id']
+                const x1 = data_image['result']['elements'][index][0]['x1']
+                const y1 = data_image['result']['elements'][index][0]['y1']
+                const x2 = data_image['result']['elements'][index][0]['x2']
+                const y2 = data_image['result']['elements'][index][0]['y2']
 
                 const element = createElement(id, x1, y1, x2, y2)
                 console.log(element)
